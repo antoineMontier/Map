@@ -160,7 +160,6 @@ void displayGraph(SDL_Renderer *r, TTF_Font *f, Graph *g, char *tmp, SDL_Color *
     }
 }
 
-
 SDL_Color *initialiseColors()
 {
     SDL_Color *palette = malloc(NB_COLOR * sizeof(SDL_Color));
@@ -242,7 +241,7 @@ void weightAsDistance(Graph *g)
     }
 }
 
-void createCoordinatesSystem(const char *file_coord, const char *file_links, Graph *g)
+void createCoordinatesSystem(const char *file_coord, const char *file_links, Graph *g, double cx, double cy, double*mapValueX, double*mapValueY)
 {
     FILE *fc = fopen(file_coord, "r");
     if (fc == NULL)
@@ -294,9 +293,7 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
 
             g->vertexs[i].angle = -atan2(x - (xmin + xmax)/2, y - (ymin + ymax)/2);
             g->vertexs[i].distance = dist((xmin + xmax)/2, (ymin + ymax)/2, x, y);
-
-
-
+            printf("%f\n", g->vertexs[i].distance);
             g->vertexs[i].id = i;
             g->vertexs[i].color = NO_COLOR;
             g->nb_vertex = i + 1;
@@ -309,10 +306,12 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
             }
         }
     }
-    fclose(fc);
 
+    fclose(fc);
+    *mapValueX = (xmin + xmax)/2;
+    *mapValueY = (ymin + ymax)/2;
     // read links....
-/*
+
     FILE *fl = fopen(file_links, "r");
     if (fl == NULL)
     {
@@ -330,7 +329,6 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
             sscanf(buffer, "%d%c%d", &a, &bin[0], &b);
             g->aretes[i].start = a - 3;
             g->aretes[i].end = b - 3; //-3 to count after max and min
-            g->aretes[i].id = i;
             g->aretes[i].weight = NO_WEIGHT;
             g->nb_arete = i + 1;
             i++;
@@ -346,7 +344,6 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
             sscanf(buffer, "%c%d%c%d", &bin[0], &a, &bin[0], &b);
             g->aretes[i].start = a - 3;
             g->aretes[i].end = b - 3; //-3 to count after max and min
-            g->aretes[i].id = i;
             g->aretes[i].weight = NO_WEIGHT;
             g->nb_arete = i + 1;
             i++;
@@ -358,7 +355,6 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
             }
             g->aretes[i].start = b - 3;
             g->aretes[i].end = a - 3; //-3 to count after max and min
-            g->aretes[i].id = i;
             g->aretes[i].weight = NO_WEIGHT;
             g->nb_arete = i + 1;
             i++;
@@ -370,9 +366,31 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
             }
         }
     }
-    fclose(fl);*/
+    fclose(fl);
     // printf("%f\n", ymax-ymin);
 }
+
+void changeCenter(SDL_Renderer *r, double zoom, Graph*g, double old_center_x, double old_center_y, double new_center_x, double new_center_y, double mapX, double mapY){
+    double x, y;
+    //color(r, 255, 0, 0, 1);
+    for(int i = 0 ; i < g->nb_vertex ; i++){
+        printf("%d\n", i);
+        x = mapX + cos(g->vertexs[i].angle)*(g->vertexs[i].distance)*zoom;
+        y = mapY + sin(g->vertexs[i].angle)*(g->vertexs[i].distance)*zoom;
+        line(r, x, y, new_center_x, new_center_y);
+        //mark(r, x, y, 2);
+        g->vertexs[i].distance = dist(x, y, new_center_x, new_center_y);
+        g->vertexs[i].angle = -atan2(x - new_center_x*mapX,
+                                y - new_center_y*mapY);
+        printf("angle : %f  distance : %f\n", g->vertexs[i].angle, g->vertexs[i].distance);
+    }
+
+}
+
+
+
+
+
 /*
 int linkByClick(const char *file_links, Graph *g, double x1, double y1, double x2, double y2, int doublelink, int edge_x, int edge_y, int width, int height)
 {

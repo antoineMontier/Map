@@ -11,9 +11,9 @@ int main()
 { /*gcc -c -Wall -Wextra main.c && gcc main.o -lm -o main && ./main*/
 
     SDL_Color *palette = initialiseColors();
-
-    double center_x = WIDTH/2, center_y = HEIGHT/2, zoom =1;
-    int mouse_scroll = 0;
+    double mouseX = 0, mouseY = 0, pmouseX = 0, pmouseY = 0, mapValueX, mapValueY;
+    double center_x = WIDTH/2, center_y = HEIGHT/2, zoom =20000;
+    int mouse_scroll = 0, click = 0;
     srand(time(0));
     SDL_Window *w;
     SDL_Renderer *r;
@@ -27,20 +27,51 @@ int main()
     char *tmp = malloc(10);
     Graph g;
     createGraph(&g, 500, 2000);
-    createCoordinatesSystem("./coordinates.txt", "e", &g);
-    printf("%f\n", g.vertexs[0].distance);
+    createCoordinatesSystem("./coordinates.txt", "./links.txt", &g, center_x, center_y, &mapValueX, &mapValueY);
+    int i = 0;
     while (program_launched)
     {
+
+        //=======MOTION OF MAP============
+        if(click){
+            center_x -= (pmouseX - mouseX)*5;
+            center_y -= (pmouseY - mouseY)*5;
+        }   
+        //===END MOTION OF MAP============
+
+        //======== ZOOM ============
         if(mouse_scroll == IN){
+            center_x = mouseX;
+            center_y = mouseY;
+            //changeCenter(&g, center_x, center_y, WIDTH/2, HEIGHT/2);
+            //center_x = WIDTH/2;
+            //center_y = HEIGHT/2;
+            //center_x +=  (mouseX - WIDTH/2)*1.05;
+            //center_y += (mouseY - HEIGHT/2)*1.05;
             zoom *= 1.05;
             mouse_scroll = 0;
         }else if(mouse_scroll == OUT){
-            zoom *= 0.95;
+            center_x = mouseX;
+            center_y = mouseY;
+            //changeCenter(&g, center_x, center_y, WIDTH/2, HEIGHT/2);
+            //center_x = WIDTH/2;
+            //center_y = HEIGHT/2;
+            //center_x +=  (mouseX - WIDTH/2)*1.05;
+            //center_y += (mouseY - HEIGHT/2)*1.05;
+            //center_x /= 1.05;
+            //center_y /= 1.05;
+            zoom /= 1.05;
             mouse_scroll = 0;
         }
-        background(r, 255, 255, 255, WIDTH, HEIGHT);//while bg
-        
+        //========END ZOOM=============
+
+
+
+
+        background(r, 255, 255, 255, WIDTH, HEIGHT);//white bg
+        printf("bg dsiplayed\n");
         displayGraph(r, f, &g, tmp, palette, center_x, center_y, zoom);
+        printf("graph displayed\n");
         color(r, 255, 0, 0, 1);
         mark(r, center_x, center_y, 2);
         
@@ -64,12 +95,24 @@ int main()
                     break;
 
                 case SDLK_l:
+                    changeCenter(r, zoom, &g, center_x, center_y, mouseX, mouseY, mapValueX, mapValueY);
+                    printf("finished\n");
+                    /*center_x = mouseX;
+                    center_y = mouseY;*/
                     break;
 
                 case SDLK_v:
                     break;
 
                 case SDLK_CAPSLOCK:
+                    break;
+
+                case SDLK_KP_PLUS:
+                    zoom *= 1.5;
+                    break;
+
+                case SDLK_KP_MINUS:
+                    zoom /= 1.5;
                     break;
 
                 default:
@@ -80,20 +123,27 @@ int main()
                 break;
 
             case SDL_MOUSEMOTION:
+                pmouseX = mouseX;
+                pmouseY = mouseY;
+                mouseX = evt.button.x;
+                mouseY = evt.button.y;
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
+                click = 1;
                 break;
 
             case SDL_MOUSEBUTTONUP:
+                click = 0;
                 break;
 
             default:
                 break;
             }
         }
+        printf("%d\n", i++);
         SDL_RenderPresent(r); // refresh the render
-        SDL_Delay(33);
+        SDL_Delay(330);
     }
     free(palette);
     free(tmp);
