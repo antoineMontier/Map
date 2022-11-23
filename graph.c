@@ -241,7 +241,7 @@ void weightAsDistance(Graph *g)
     }
 }
 
-void createCoordinatesSystem(const char *file_coord, const char *file_links, Graph *g, double cx, double cy, double*mapValueX, double*mapValueY)
+void createCoordinatesSystem(const char *file_coord, const char *file_links, Graph *g, double cx, double cy)
 {
     FILE *fc = fopen(file_coord, "r");
     if (fc == NULL)
@@ -293,7 +293,6 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
 
             g->vertexs[i].angle = -atan2(x - (xmin + xmax)/2, y - (ymin + ymax)/2);
             g->vertexs[i].distance = dist((xmin + xmax)/2, (ymin + ymax)/2, x, y);
-            printf("%f\n", g->vertexs[i].distance);
             g->vertexs[i].id = i;
             g->vertexs[i].color = NO_COLOR;
             g->nb_vertex = i + 1;
@@ -308,8 +307,7 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
     }
 
     fclose(fc);
-    *mapValueX = (xmin + xmax)/2;
-    *mapValueY = (ymin + ymax)/2;
+
     // read links....
 
     FILE *fl = fopen(file_links, "r");
@@ -370,19 +368,14 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
     // printf("%f\n", ymax-ymin);
 }
 
-void changeCenter(SDL_Renderer *r, double zoom, Graph*g, double old_center_x, double old_center_y, double new_center_x, double new_center_y, double mapX, double mapY){
+void changeCenter(double zoom, Graph*g, double old_center_x, double old_center_y, double new_center_x, double new_center_y){
     double x, y;
-    //color(r, 255, 0, 0, 1);
-    for(int i = 0 ; i < g->nb_vertex ; i++){
-        printf("%d\n", i);
-        x = mapX + cos(g->vertexs[i].angle)*(g->vertexs[i].distance)*zoom;
-        y = mapY + sin(g->vertexs[i].angle)*(g->vertexs[i].distance)*zoom;
-        line(r, x, y, new_center_x, new_center_y);
-        //mark(r, x, y, 2);
-        g->vertexs[i].distance = dist(x, y, new_center_x, new_center_y);
-        g->vertexs[i].angle = -atan2(x - new_center_x*mapX,
-                                y - new_center_y*mapY);
-        printf("angle : %f  distance : %f\n", g->vertexs[i].angle, g->vertexs[i].distance);
+    for(int i = 0 ; i < g->nb_vertex;i++){
+        x = cos(g->vertexs[i].angle) * g->vertexs[i].distance*zoom;
+        y = sin(g->vertexs[i].angle) * g->vertexs[i].distance*zoom;
+        g->vertexs[i].distance = dist(new_center_x, new_center_y ,old_center_x + x, old_center_y + y)/zoom;
+        g->vertexs[i].angle = atan2(new_center_y - (old_center_y + y), new_center_x - (old_center_x + x)) + 3.1415;
+
     }
 
 }

@@ -11,7 +11,7 @@ int main()
 { /*gcc -c -Wall -Wextra main.c && gcc main.o -lm -o main && ./main*/
 
     SDL_Color *palette = initialiseColors();
-    double mouseX = 0, mouseY = 0, pmouseX = 0, pmouseY = 0, mapValueX, mapValueY;
+    double mouseX = 0, mouseY = 0, pmouseX = 0, pmouseY = 0, zmouseX, zmouseY;
     double center_x = WIDTH/2, center_y = HEIGHT/2, zoom =20000;
     int mouse_scroll = 0, click = 0;
     srand(time(0));
@@ -27,8 +27,7 @@ int main()
     char *tmp = malloc(10);
     Graph g;
     createGraph(&g, 500, 2000);
-    createCoordinatesSystem("./coordinates.txt", "./links.txt", &g, center_x, center_y, &mapValueX, &mapValueY);
-    int i = 0;
+    createCoordinatesSystem("./coordinates.txt", "./links.txt", &g, center_x, center_y);
     while (program_launched)
     {
 
@@ -41,8 +40,15 @@ int main()
 
         //======== ZOOM ============
         if(mouse_scroll == IN){
-            center_x = mouseX;
-            center_y = mouseY;
+            if(mouseX != zmouseX || mouseY != zmouseY){
+                changeCenter(zoom, &g, center_x, center_y, mouseX, mouseY);
+                center_x = mouseX;
+                center_y = mouseY;
+                zmouseX = mouseX;
+                zmouseY = mouseY;
+            }
+            /*center_x = mouseX;
+            center_y = mouseY;*/
             //changeCenter(&g, center_x, center_y, WIDTH/2, HEIGHT/2);
             //center_x = WIDTH/2;
             //center_y = HEIGHT/2;
@@ -51,8 +57,15 @@ int main()
             zoom *= 1.05;
             mouse_scroll = 0;
         }else if(mouse_scroll == OUT){
-            center_x = mouseX;
-            center_y = mouseY;
+            if(mouseX != zmouseX || mouseY != zmouseY){
+                changeCenter(zoom, &g, center_x, center_y, mouseX, mouseY);
+                center_x = mouseX;
+                center_y = mouseY;
+                zmouseX = mouseX;
+                zmouseY = mouseY;
+            }
+            /*center_x = mouseX;
+            center_y = mouseY;*/
             //changeCenter(&g, center_x, center_y, WIDTH/2, HEIGHT/2);
             //center_x = WIDTH/2;
             //center_y = HEIGHT/2;
@@ -67,11 +80,8 @@ int main()
 
 
 
-
         background(r, 255, 255, 255, WIDTH, HEIGHT);//white bg
-        printf("bg dsiplayed\n");
         displayGraph(r, f, &g, tmp, palette, center_x, center_y, zoom);
-        printf("graph displayed\n");
         color(r, 255, 0, 0, 1);
         mark(r, center_x, center_y, 2);
         
@@ -95,10 +105,6 @@ int main()
                     break;
 
                 case SDLK_l:
-                    changeCenter(r, zoom, &g, center_x, center_y, mouseX, mouseY, mapValueX, mapValueY);
-                    printf("finished\n");
-                    /*center_x = mouseX;
-                    center_y = mouseY;*/
                     break;
 
                 case SDLK_v:
@@ -141,9 +147,8 @@ int main()
                 break;
             }
         }
-        printf("%d\n", i++);
         SDL_RenderPresent(r); // refresh the render
-        SDL_Delay(330);
+        SDL_Delay(33);
     }
     free(palette);
     free(tmp);

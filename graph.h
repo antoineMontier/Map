@@ -1,7 +1,7 @@
 #define NO_COLOR -1
 #define NO_WEIGHT -1
 #define NB_COLOR 15
-#define VERTEX_SIZE 20
+#define VERTEX_SIZE 2
 
 #include "SDL_Basics.h"
 
@@ -41,7 +41,7 @@ void createCompleteGraph(Graph *g, int n);
 void displayGraph(SDL_Renderer *r, TTF_Font *f, Graph *g, char *tmp, SDL_Color *c, int artificial_center_x, int artificial_center_y, double zoom_power);
 SDL_Color* initialiseColors();
 void weightAsDistance(Graph*g);//not sure on this one...
-void createCoordinatesSystem(const char *file_coord, const char *file_links, Graph *g, double cx, double cy, double*mapValueX, double*mapValueY);
+void createCoordinatesSystem(const char *file_coord, const char *file_links, Graph *g, double cx, double cy);
 int linkByClick(const char *file_name, Graph *g, double x1, double y1, double x2, double y2, int doublelink, int edge_x, int edge_y, int width, int height);
 int createVertex(const char* file_coordinates, Graph*g, double cx, double cy, double _w, double _h, double x, double y);
-void changeCenter(SDL_Renderer *r, double zoom, Graph*g, double old_center_x, double old_center_y, double new_center_x, double new_center_y, double mapX, double mapY);
+void changeCenter(double zoom, Graph*g, double old_center_x, double old_center_y, double new_center_x, double new_center_y);
