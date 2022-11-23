@@ -159,16 +159,7 @@ void displayGraph(SDL_Renderer *r, TTF_Font *f, Graph *g, char *tmp, SDL_Color *
         }
     }
 }
-/*
-void circlePoints(Graph) )*g)
-{
 
-    for (int i = 0; i < g->nb_vertex; i++)
-    {
-        g->vertexs[i].x = cos(i * 2 * 3.1415 / g->nb_vertex) * (fmin(WIDTH, HEIGHT) / 2.1) + WIDTH / 2;
-        g->vertexs[i].y = sin(i * 2 * 3.1415 / g->nb_vertex) * (fmin(WIDTH, HEIGHT) / 2.1) + HEIGHT / 2;
-    }
-}*/
 
 SDL_Color *initialiseColors()
 {
@@ -239,16 +230,19 @@ SDL_Color *initialiseColors()
 
     return palette;
 }
-/*
+
 void weightAsDistance(Graph *g)
 {
     for (int i = 0; i < g->nb_arete; i++)
     {
-        g->aretes[i].weight = dist(g->vertexs[g->aretes[i].start].x, g->vertexs[g->aretes[i].start].y, g->vertexs[g->aretes[i].end].x, g->vertexs[g->aretes[i].end].y);
+        g->aretes[i].weight = dist(cos(g->vertexs[g->aretes[i].start].angle) * g->vertexs[g->aretes[i].start].distance,
+                                   sin(g->vertexs[g->aretes[i].start].angle) * g->vertexs[g->aretes[i].start].distance,
+                                    cos(g->vertexs[g->aretes[i].end].angle)  * g->vertexs[g->aretes[i].end].distance,
+                                    sin(g->vertexs[g->aretes[i].end].angle)  * g->vertexs[g->aretes[i].end].distance);
     }
-}*/
-/*
-void creatCoordinatesSystem(const char *file_coord, const char *file_links, Graph *g)
+}
+
+void createCoordinatesSystem(const char *file_coord, const char *file_links, Graph *g)
 {
     FILE *fc = fopen(file_coord, "r");
     if (fc == NULL)
@@ -297,16 +291,12 @@ void creatCoordinatesSystem(const char *file_coord, const char *file_links, Grap
         {
             sscanf(buffer, "%6s", bin);
             sscanf(buffer, "%lf%3s%lf", &x, bin, &y);
-            if (HEIGHT <= WIDTH)
-            {
-                g->vertexs[i].y = (HEIGHT) - (x - xmin) * HEIGHT / (xmax - xmin);
-                g->vertexs[i].x = (y - ymin) * HEIGHT / (xmax - xmin);
-            }
-            else
-            {
-                g->vertexs[i].y = (WIDTH) - (x - xmin) * WIDTH / (ymax - ymin);
-                g->vertexs[i].x = (y - ymin) * WIDTH / (ymax - ymin);
-            }
+
+            g->vertexs[i].angle = -atan2(x - (xmin + xmax)/2, y - (ymin + ymax)/2);
+            g->vertexs[i].distance = dist((xmin + xmax)/2, (ymin + ymax)/2, x, y);
+
+
+
             g->vertexs[i].id = i;
             g->vertexs[i].color = NO_COLOR;
             g->nb_vertex = i + 1;
@@ -322,7 +312,7 @@ void creatCoordinatesSystem(const char *file_coord, const char *file_links, Grap
     fclose(fc);
 
     // read links....
-
+/*
     FILE *fl = fopen(file_links, "r");
     if (fl == NULL)
     {
@@ -380,10 +370,10 @@ void creatCoordinatesSystem(const char *file_coord, const char *file_links, Grap
             }
         }
     }
-    fclose(fl);
+    fclose(fl);*/
     // printf("%f\n", ymax-ymin);
 }
-
+/*
 int linkByClick(const char *file_links, Graph *g, double x1, double y1, double x2, double y2, int doublelink, int edge_x, int edge_y, int width, int height)
 {
     if (x1 < 0 || x2 < 0 || y1 < 0 || y2 < 0)

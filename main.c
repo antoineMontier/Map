@@ -5,16 +5,15 @@
 #include "graph.h"
 #define IN 1
 #define OUT -1
-#define NO_ZOOM 0
-#define ZOOM_POWER 0.05
+#define NO_ZOOM 1
 
 int main()
 { /*gcc -c -Wall -Wextra main.c && gcc main.o -lm -o main && ./main*/
 
     SDL_Color *palette = initialiseColors();
 
-    double center_x = WIDTH/2, center_y = HEIGHT/2;
-
+    double center_x = WIDTH/2, center_y = HEIGHT/2, zoom =1;
+    int mouse_scroll = 0;
     srand(time(0));
     SDL_Window *w;
     SDL_Renderer *r;
@@ -28,16 +27,20 @@ int main()
     char *tmp = malloc(10);
     Graph g;
     createGraph(&g, 500, 2000);
-    addVertex(&g, 0, 50, 3.1415/4, 3);
-    addVertex(&g, 1, 150, 3.1415, 2);
-    addArete(&g, 0, 1, 5);
-    addArete(&g, 1, 1, 0);
+    createCoordinatesSystem("./coordinates.txt", "e", &g);
+    printf("%f\n", g.vertexs[0].distance);
     while (program_launched)
     {
+        if(mouse_scroll == IN){
+            zoom *= 1.05;
+            mouse_scroll = 0;
+        }else if(mouse_scroll == OUT){
+            zoom *= 0.95;
+            mouse_scroll = 0;
+        }
         background(r, 255, 255, 255, WIDTH, HEIGHT);//while bg
         
-        
-        displayGraph(r, f, &g, tmp, palette, center_x, center_y, 1);
+        displayGraph(r, f, &g, tmp, palette, center_x, center_y, zoom);
         color(r, 255, 0, 0, 1);
         mark(r, center_x, center_y, 2);
         
@@ -73,7 +76,7 @@ int main()
                     break;
                 }
             case SDL_MOUSEWHEEL:
-                //zoom = evt.wheel.y;
+                mouse_scroll = evt.wheel.y;
                 break;
 
             case SDL_MOUSEMOTION:

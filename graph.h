@@ -39,9 +39,8 @@ void printVertex(Vertex *v);
 void printArete(Arete *a);
 void createCompleteGraph(Graph *g, int n);
 void displayGraph(SDL_Renderer *r, TTF_Font *f, Graph *g, char *tmp, SDL_Color *c, int artificial_center_x, int artificial_center_y, double zoom_power);
-void circlePoints(Graph*g);
 SDL_Color* initialiseColors();
-void weightAsDistance(Graph*g);
-void creatCoordinatesSystem(const char *file_coord, const char *file_links, Graph *g);
+void weightAsDistance(Graph*g);//not sure on this one...
+void createCoordinatesSystem(const char *file_coord, const char *file_links, Graph *g);
 int linkByClick(const char *file_name, Graph *g, double x1, double y1, double x2, double y2, int doublelink, int edge_x, int edge_y, int width, int height);
 int createVertex(const char* file_coordinates, Graph*g, double cx, double cy, double _w, double _h, double x, double y);
