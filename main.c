@@ -5,7 +5,6 @@
 #include "graph.h"
 #define IN 1
 #define OUT -1
-#define NO_ZOOM 1
 #define FRAMES_PER_SECOND 60
 
 int main()
@@ -13,7 +12,7 @@ int main()
 
     SDL_Color *palette = initialiseColors();
     double mouseX = 0, mouseY = 0, pmouseX = 0, pmouseY = 0, zmouseX, zmouseY, clickX = -1, clickY = -1;
-    double center_x = WIDTH/2, center_y = HEIGHT/2, zoom =20000;
+    double center_x = WIDTH / 2, center_y = HEIGHT / 2, zoom = 20000;
     int mouse_scroll = 0, click = 0, capsLock = 0, link_mode = 0;
     srand(time(0));
     SDL_Window *w;
@@ -24,6 +23,8 @@ int main()
     openSDL(WIDTH, HEIGHT, 0, &w, &r);
     TTF_Font *f;
     setFont(&f, "Roboto-Black.ttf", VERTEX_SIZE);
+    TTF_Font *controls;
+    setFont(&controls, "Roboto-Light.ttf", 20);
 
     char *tmp = malloc(10);
     Graph g;
@@ -33,15 +34,18 @@ int main()
     {
 
         //=======MOTION OF MAP============
-        if(click){
-            center_x -= (pmouseX - mouseX)*5;
-            center_y -= (pmouseY - mouseY)*5;
-        }   
+        if (click && link_mode == 0)
+        {
+            center_x -= (pmouseX - mouseX) * 5;
+            center_y -= (pmouseY - mouseY) * 5;
+        }
         //===END MOTION OF MAP============
 
         //======== ZOOM ============
-        if(mouse_scroll == IN){
-            if(mouseX != zmouseX || mouseY != zmouseY){
+        if (mouse_scroll == IN)
+        {
+            if (mouseX != zmouseX || mouseY != zmouseY)
+            {
                 changeCenter(zoom, &g, center_x, center_y, mouseX, mouseY);
                 center_x = mouseX;
                 center_y = mouseY;
@@ -50,8 +54,11 @@ int main()
             }
             zoom *= 1.05;
             mouse_scroll = 0;
-        }else if(mouse_scroll == OUT){
-            if(mouseX != zmouseX || mouseY != zmouseY){
+        }
+        else if (mouse_scroll == OUT)
+        {
+            if (mouseX != zmouseX || mouseY != zmouseY)
+            {
                 changeCenter(zoom, &g, center_x, center_y, mouseX, mouseY);
                 center_x = mouseX;
                 center_y = mouseY;
@@ -63,16 +70,43 @@ int main()
         }
         //========END ZOOM=============
 
-
-
-        background(r, 255, 255, 255, WIDTH, HEIGHT);//white bg
+        background(r, 255, 255, 255, WIDTH, HEIGHT); // white bg
         displayGraph(r, f, &g, tmp, palette, center_x, center_y, zoom);
         color(r, 255, 0, 0, 1);
-        if(link_mode && clickX != -1 && clickY != -1)
+        if (link_mode && clickX != -1 && clickY != -1)
             line(r, clickX, clickY, mouseX, mouseY);
         mark(r, center_x, center_y, 2);
-        
-     
+
+        //==== display control board :
+        text(r, 0, 0, "Zoom :          |  link mode :", controls, 0, 0, 0);
+        toChar(tmp, (int)(log10(zoom) * 100));
+        text(r, 65, 0, tmp, controls, 0, 0, 0);
+        if (link_mode)
+        {
+            color(r, 250, 150, 220, 1);
+            roundRect(r, 225, 1, 40, 24, 1, 10, 10, 10, 10);
+
+            if (clickX != -1 && clickY != -1)
+            {
+                color(r, 150, 30, 70, 1);
+                roundRect(r, 225, 1, 20, 24, 1, 10, 0, 10, 0);
+            }
+
+            // arrow body :
+            color(r, 255, 255, 255, 1);
+            roundRect(r, 233, 11, 24, 4, 1, 2, 2, 2, 2);
+            // arrow right spike :
+            triangle(r, 255, 8,       // top
+                     255, 18,         // bottom
+                     260, 13, 1);     // middle
+            if (capsLock)             // arrow left spike (optionnal) :
+                triangle(r, 235, 8,   // top
+                         235, 18,     // bottom
+                         230, 13, 1); // middle
+        }
+        color(r, 255, 0, 0, 1);
+        roundRect(r, 225, 1, 40, 24, 0, 10, 10, 10, 10);
+        line(r, 245, 1, 245, 25);
 
         while (SDL_PollEvent(&evt))
         { // reads all the events (mouse moving, key pressed...)        //possible to wait for an event with SDL_WaitEvent
@@ -126,11 +160,17 @@ int main()
 
             case SDL_MOUSEBUTTONDOWN:
                 click = 1;
-                if(link_mode){
-                    if(linkByClick(r, "./links.txt", &g, center_x, center_y, zoom, clickX, clickY, mouseX, mouseY, capsLock)){
+                if (link_mode)
+                {
+                    if (linkByClick(r, "./links.txt", &g, center_x, center_y, zoom, clickX, clickY, mouseX, mouseY, capsLock))
+                    {
+                        color(r, 150, 30, 70, 1);
+                        roundRect(r, 245, 1, 20, 24, 1, 0, 10, 0, 10);
                         clickX = -1;
-                        clickY = -1;//avoid repetitions
-                    }else{
+                        clickY = -1; // avoid repetitions
+                    }
+                    else
+                    {
                         clickX = mouseX;
                         clickY = mouseY;
                     }
@@ -146,10 +186,11 @@ int main()
             }
         }
         SDL_RenderPresent(r); // refresh the render
-        SDL_Delay(1000/FRAMES_PER_SECOND);
+        SDL_Delay(1000 / FRAMES_PER_SECOND);
     }
     free(palette);
     free(tmp);
+    TTF_CloseFont(controls);
     TTF_CloseFont(f);
     destructGraph(&g);
     closeSDL(&w, &r);

@@ -118,7 +118,7 @@ void displayGraph(SDL_Renderer *r, TTF_Font *f, Graph *g, char *tmp, SDL_Color *
         circle(r, artificial_center_x + cos(g->vertexs[i].angle) * zoom_power * g->vertexs[i].distance, artificial_center_y + sin(g->vertexs[i].angle) * zoom_power * g->vertexs[i].distance, VERTEX_SIZE, 0);
         toChar(tmp, g->vertexs[i].id);
         // printf("%d\n", g->vertexs[i].id);
-        text(r, artificial_center_x + cos(g->vertexs[i].angle) * zoom_power * g->vertexs[i].distance, artificial_center_y + sin(g->vertexs[i].angle) * zoom_power * g->vertexs[i].distance, tmp, f, 0, 0, 0);
+        text(r, artificial_center_x + cos(g->vertexs[i].angle) * zoom_power * g->vertexs[i].distance - VERTEX_SIZE/2, artificial_center_y + sin(g->vertexs[i].angle) * zoom_power * g->vertexs[i].distance - VERTEX_SIZE/2, tmp, f, 0, 0, 0);
     }
 
     // display aretes
@@ -379,11 +379,6 @@ void changeCenter(double zoom, Graph*g, double old_center_x, double old_center_y
     }
 
 }
-
-
-
-
-
 
 int linkByClick(SDL_Renderer *r, const char *file_links, Graph *g, double artificial_center_x, double artificial_center_y, double zoom, double x1, double y1, double x2, double y2, int doublelink)
 {
