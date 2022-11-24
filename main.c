@@ -6,14 +6,15 @@
 #define IN 1
 #define OUT -1
 #define NO_ZOOM 1
+#define FRAMES_PER_SECOND 60
 
 int main()
 { /*gcc -c -Wall -Wextra main.c && gcc main.o -lm -o main && ./main*/
 
     SDL_Color *palette = initialiseColors();
-    double mouseX = 0, mouseY = 0, pmouseX = 0, pmouseY = 0, zmouseX, zmouseY;
+    double mouseX = 0, mouseY = 0, pmouseX = 0, pmouseY = 0, zmouseX, zmouseY, clickX = -1, clickY = -1;
     double center_x = WIDTH/2, center_y = HEIGHT/2, zoom =20000;
-    int mouse_scroll = 0, click = 0;
+    int mouse_scroll = 0, click = 0, capsLock = 0, link_mode = 0;
     srand(time(0));
     SDL_Window *w;
     SDL_Renderer *r;
@@ -22,7 +23,7 @@ int main()
     SDL_bool program_launched = SDL_TRUE;
     openSDL(WIDTH, HEIGHT, 0, &w, &r);
     TTF_Font *f;
-    setFont(&f, "Roboto-Black.ttf", VERTEX_SIZE * 0.8);
+    setFont(&f, "Roboto-Black.ttf", VERTEX_SIZE);
 
     char *tmp = malloc(10);
     Graph g;
@@ -47,13 +48,6 @@ int main()
                 zmouseX = mouseX;
                 zmouseY = mouseY;
             }
-            /*center_x = mouseX;
-            center_y = mouseY;*/
-            //changeCenter(&g, center_x, center_y, WIDTH/2, HEIGHT/2);
-            //center_x = WIDTH/2;
-            //center_y = HEIGHT/2;
-            //center_x +=  (mouseX - WIDTH/2)*1.05;
-            //center_y += (mouseY - HEIGHT/2)*1.05;
             zoom *= 1.05;
             mouse_scroll = 0;
         }else if(mouse_scroll == OUT){
@@ -64,15 +58,6 @@ int main()
                 zmouseX = mouseX;
                 zmouseY = mouseY;
             }
-            /*center_x = mouseX;
-            center_y = mouseY;*/
-            //changeCenter(&g, center_x, center_y, WIDTH/2, HEIGHT/2);
-            //center_x = WIDTH/2;
-            //center_y = HEIGHT/2;
-            //center_x +=  (mouseX - WIDTH/2)*1.05;
-            //center_y += (mouseY - HEIGHT/2)*1.05;
-            //center_x /= 1.05;
-            //center_y /= 1.05;
             zoom /= 1.05;
             mouse_scroll = 0;
         }
@@ -83,6 +68,8 @@ int main()
         background(r, 255, 255, 255, WIDTH, HEIGHT);//white bg
         displayGraph(r, f, &g, tmp, palette, center_x, center_y, zoom);
         color(r, 255, 0, 0, 1);
+        if(link_mode && clickX != -1 && clickY != -1)
+            line(r, clickX, clickY, mouseX, mouseY);
         mark(r, center_x, center_y, 2);
         
      
@@ -105,12 +92,14 @@ int main()
                     break;
 
                 case SDLK_l:
+                    link_mode = !link_mode;
                     break;
 
                 case SDLK_v:
                     break;
 
                 case SDLK_CAPSLOCK:
+                    capsLock = !capsLock;
                     break;
 
                 case SDLK_KP_PLUS:
@@ -137,6 +126,15 @@ int main()
 
             case SDL_MOUSEBUTTONDOWN:
                 click = 1;
+                if(link_mode){
+                    if(linkByClick(r, "./links.txt", &g, center_x, center_y, zoom, clickX, clickY, mouseX, mouseY, capsLock)){
+                        clickX = -1;
+                        clickY = -1;//avoid repetitions
+                    }else{
+                        clickX = mouseX;
+                        clickY = mouseY;
+                    }
+                }
                 break;
 
             case SDL_MOUSEBUTTONUP:
@@ -148,7 +146,7 @@ int main()
             }
         }
         SDL_RenderPresent(r); // refresh the render
-        SDL_Delay(33);
+        SDL_Delay(1000/FRAMES_PER_SECOND);
     }
     free(palette);
     free(tmp);

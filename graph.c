@@ -384,22 +384,28 @@ void changeCenter(double zoom, Graph*g, double old_center_x, double old_center_y
 
 
 
-/*
-int linkByClick(const char *file_links, Graph *g, double x1, double y1, double x2, double y2, int doublelink, int edge_x, int edge_y, int width, int height)
+
+int linkByClick(SDL_Renderer *r, const char *file_links, Graph *g, double artificial_center_x, double artificial_center_y, double zoom, double x1, double y1, double x2, double y2, int doublelink)
 {
+    //if no coordinate is in the window...
     if (x1 < 0 || x2 < 0 || y1 < 0 || y2 < 0)
         return 0;
-    int s = -1, e = -1;
 
-    for (int i = 0; i < g->nb_vertex && s == -1; i++)
-        if (dist(x1, y1, edge_x + (g->vertexs[i].x) * width / WIDTH, edge_y + (g->vertexs[i].y) * height / HEIGHT) < VERTEX_SIZE)
-            s = i;
 
-    for (int i = 0; i < g->nb_vertex && s != -1 && e == -1; i++)
-        if (dist(x2, y2, edge_x + (g->vertexs[i].x) * width / WIDTH, edge_y + (g->vertexs[i].y) * height / HEIGHT) < VERTEX_SIZE)
-            e = i;
+    int start_id = -1, end_id = -1;
 
-    if (s == -1 || e == -1) // no clicks in thee vertexs
+    //
+    for (int i = 0; i < g->nb_vertex && start_id == -1; i++)
+        if (dist(x1, y1, artificial_center_x + cos(g->vertexs[i].angle) * g->vertexs[i].distance*zoom,
+                         artificial_center_y + sin(g->vertexs[i].angle) * g->vertexs[i].distance*zoom) < VERTEX_SIZE)
+            start_id = i;
+
+    for (int i = 0; i < g->nb_vertex && start_id != -1 && end_id == -1; i++)
+        if (dist(x2, y2, artificial_center_x + cos(g->vertexs[i].angle) * g->vertexs[i].distance*zoom,
+                         artificial_center_y + sin(g->vertexs[i].angle) * g->vertexs[i].distance*zoom) < VERTEX_SIZE)
+            end_id = i;
+
+    if (start_id == -1 || end_id == -1) // no clicks in thee vertexs
         return 0;
 
     FILE *f = fopen(file_links, "a");
@@ -411,19 +417,26 @@ int linkByClick(const char *file_links, Graph *g, double x1, double y1, double x
         return 0;
     }
 
-    printf("adding arete between %d and %d \n", s, e);
-    addArete(g, g->nb_arete, s, e, NO_WEIGHT);
+    printf("adding arete between %d and %d \n", start_id, end_id);
+    addArete(g, start_id, end_id, NO_WEIGHT);
 
     if (doublelink)
     {
-        addArete(g, g->nb_arete, e, s, NO_WEIGHT);
+        addArete(g, end_id, start_id, NO_WEIGHT);
 
         fprintf(f, "%s", "."); // double way arrow signature
     }
-    fprintf(f, "%d %d\n", s + 3, e + 3);
+    fprintf(f, "%d %d\n", start_id + 3, end_id + 3);
     fclose(f);
     return 1; // sucess
-}*/
+}
+
+
+
+
+
+
+
 /*
 int createVertex(const char* file_coordinates, Graph*g, double cx, double cy, double _w, double _h, double x, double y){
     //first let's know the min and max value :
