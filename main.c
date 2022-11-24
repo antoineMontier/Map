@@ -28,7 +28,7 @@ int main()
 
     char *tmp = malloc(10);
     Graph g;
-    createGraph(&g, 500, 2000);
+    createGraph(&g, 1000, 2000);
     createCoordinatesSystem("./coordinates.txt", "./links.txt", &g, center_x, center_y);
     while (program_launched)
     {
@@ -130,6 +130,17 @@ int main()
                     break;
 
                 case SDLK_v:
+                    break;
+
+                case SDLK_r:
+                    printf("reloading file...");
+                    createCoordinatesSystem("./coordinates.txt", "./links.txt", &g, WIDTH/2, HEIGHT/2);
+                    changeCenter(zoom, &g, WIDTH/(2*zoom), HEIGHT/(2*zoom), center_x, center_y);
+                    center_x = mouseX;
+                    center_y = mouseY;
+                    zmouseX = mouseX;
+                    zmouseY = mouseY;
+                    printf("done !\n");
                     break;
 
                 case SDLK_CAPSLOCK:
