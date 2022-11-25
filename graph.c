@@ -481,14 +481,9 @@ void colorate_welsh_and_powell(Graph *g)
         for (int i = 0; i < NB_COLOR; i++)
             colors_avaible[i] = 1;
 
-        // printf("treating vertex %d\n", v);
 
         neightbours(g, v, neight);
 
-        /*printf("neightbours :: \n[");
-        for(int i = 0 ; i < NB_COLOR ; i++)
-            printf("%d ", neight[i]);
-        printf("]\n");*/
 
         int n_id = 0;
         while (neight[n_id] != -1 && n_id < g->nb_vertex)
@@ -498,15 +493,8 @@ void colorate_welsh_and_powell(Graph *g)
             n_id++;
         }
 
-        /*printf("colors avaible :: \n[");
-
-        for(int i = 0 ; i < NB_COLOR ; i++)
-            printf("%d ", colors_avaible[i]);
-        printf("]\n");*/
-
         for (int chosen_color = 0; chosen_color <= NB_COLOR && g->vertexs[v].color == NO_COLOR; chosen_color++)
         {
-            // printf("%d ", chosen_color);
             if (colors_avaible[chosen_color] == 1)
                 g->vertexs[v].color = chosen_color;
             else if (chosen_color == NB_COLOR)
@@ -515,7 +503,6 @@ void colorate_welsh_and_powell(Graph *g)
                 return;
             }
         }
-        // printf("\n");
     }
     free(sorted_v_id);
     free(neight);
