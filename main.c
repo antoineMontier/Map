@@ -28,7 +28,7 @@ int main()
 
     char *tmp = malloc(10);
     Graph g;
-    createGraph(&g, 1000, 2000);
+    createGraph(&g, 1000, 10000);
     createCoordinatesSystem("./coordinates.txt", "./links.txt", &g, center_x, center_y);
     while (program_launched)
     {
@@ -36,8 +36,8 @@ int main()
         //=======MOTION OF MAP============
         if (click && link_mode == 0)
         {
-            center_x -= (pmouseX - mouseX) * 5;
-            center_y -= (pmouseY - mouseY) * 5;
+            center_x -= (pmouseX - mouseX) * 8;
+            center_y -= (pmouseY - mouseY) * 8;
         }
         //===END MOTION OF MAP============
 
@@ -52,7 +52,7 @@ int main()
                 zmouseX = mouseX;
                 zmouseY = mouseY;
             }
-            zoom *= 1.05;
+            zoom *= 1.08;
             mouse_scroll = 0;
         }
         else if (mouse_scroll == OUT)
@@ -65,7 +65,7 @@ int main()
                 zmouseX = mouseX;
                 zmouseY = mouseY;
             }
-            zoom /= 1.05;
+            zoom /= 1.08;
             mouse_scroll = 0;
         }
         //========END ZOOM=============

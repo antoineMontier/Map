@@ -1,7 +1,7 @@
 #define NO_COLOR -1
 #define NO_WEIGHT -1
 #define NB_COLOR 15
-#define VERTEX_SIZE 15
+#define VERTEX_SIZE 2
 
 #include "SDL_Basics.h"
 
