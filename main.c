@@ -32,6 +32,8 @@ int main()
     createCoordinatesSystem("./coordinates.txt", "./links.txt", &g, center_x, center_y);
     colorate_welsh_and_powell(&g);
 
+    //printf("%d\n", g.vertexs[633].card);
+
     //printGraph(&g);
 
 /*

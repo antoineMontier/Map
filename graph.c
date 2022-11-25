@@ -86,8 +86,8 @@ void createCompleteGraph(Graph *g, int n)
         return;
     for (int i = 0; i < n; i++)
     {
-        g->vertexs[i].distance= fmin(HEIGHT, WIDTH)*0.48;
-        g->vertexs[i].angle = 3.1415*2*i/n;
+        g->vertexs[i].distance = fmin(HEIGHT, WIDTH) * 0.48;
+        g->vertexs[i].angle = 3.1415 * 2 * i / n;
         g->vertexs[i].id = i; // add vertexs and create a circle with their coordinates
         g->vertexs[i].color = i % NB_COLOR;
         g->vertexs[i].card = n; // is the card increased if a connexion exists or if an arrow is on the vertex ???
@@ -118,17 +118,17 @@ void displayGraph(SDL_Renderer *r, TTF_Font *f, Graph *g, char *tmp, SDL_Color *
         circle(r, artificial_center_x + cos(g->vertexs[i].angle) * zoom_power * g->vertexs[i].distance, artificial_center_y + sin(g->vertexs[i].angle) * zoom_power * g->vertexs[i].distance, VERTEX_SIZE, 0);
         toChar(tmp, g->vertexs[i].id);
         // printf("%d\n", g->vertexs[i].id);
-        text(r, artificial_center_x + cos(g->vertexs[i].angle) * zoom_power * g->vertexs[i].distance - VERTEX_SIZE/2, artificial_center_y + sin(g->vertexs[i].angle) * zoom_power * g->vertexs[i].distance - VERTEX_SIZE/2, tmp, f, 0, 0, 0);
+        text(r, artificial_center_x + cos(g->vertexs[i].angle) * zoom_power * g->vertexs[i].distance - VERTEX_SIZE / 2, artificial_center_y + sin(g->vertexs[i].angle) * zoom_power * g->vertexs[i].distance - VERTEX_SIZE / 2, tmp, f, 0, 0, 0);
     }
 
     // display aretes
-   double sx, sy, ex, ey;
+    double sx, sy, ex, ey;
     for (int i = 0; i < g->nb_arete; i++)
     {
         sx = artificial_center_x + (cos(g->vertexs[g->aretes[i].start].angle) * g->vertexs[g->aretes[i].start].distance * zoom_power);
         sy = artificial_center_y + (sin(g->vertexs[g->aretes[i].start].angle) * g->vertexs[g->aretes[i].start].distance * zoom_power);
-        ex = artificial_center_x + (cos(g->vertexs[g->aretes[i].end].angle)   * g->vertexs[g->aretes[i].end].distance   * zoom_power);
-        ey = artificial_center_y + (sin(g->vertexs[g->aretes[i].end].angle)   * g->vertexs[g->aretes[i].end].distance   * zoom_power);
+        ex = artificial_center_x + (cos(g->vertexs[g->aretes[i].end].angle) * g->vertexs[g->aretes[i].end].distance * zoom_power);
+        ey = artificial_center_y + (sin(g->vertexs[g->aretes[i].end].angle) * g->vertexs[g->aretes[i].end].distance * zoom_power);
         color(r, 0, 0, 0, 0);
 
         double theta = atan2(ey - sy, ex - sx);
@@ -236,8 +236,8 @@ void weightAsDistance(Graph *g)
     {
         g->aretes[i].weight = dist(cos(g->vertexs[g->aretes[i].start].angle) * g->vertexs[g->aretes[i].start].distance,
                                    sin(g->vertexs[g->aretes[i].start].angle) * g->vertexs[g->aretes[i].start].distance,
-                                    cos(g->vertexs[g->aretes[i].end].angle)  * g->vertexs[g->aretes[i].end].distance,
-                                    sin(g->vertexs[g->aretes[i].end].angle)  * g->vertexs[g->aretes[i].end].distance);
+                                   cos(g->vertexs[g->aretes[i].end].angle) * g->vertexs[g->aretes[i].end].distance,
+                                   sin(g->vertexs[g->aretes[i].end].angle) * g->vertexs[g->aretes[i].end].distance);
     }
 }
 
@@ -291,8 +291,8 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
             sscanf(buffer, "%6s", bin);
             sscanf(buffer, "%lf%3s%lf", &x, bin, &y);
 
-            g->vertexs[i].angle = -atan2(x - (xmin + xmax)/2, y - (ymin + ymax)/2);
-            g->vertexs[i].distance = dist((xmin + xmax)/2, (ymin + ymax)/2, x, y);
+            g->vertexs[i].angle = -atan2(x - (xmin + xmax) / 2, y - (ymin + ymax) / 2);
+            g->vertexs[i].distance = dist((xmin + xmax) / 2, (ymin + ymax) / 2, x, y);
             g->vertexs[i].id = i;
             g->vertexs[i].color = NO_COLOR;
             g->nb_vertex = i + 1;
@@ -325,6 +325,8 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
         if (bin[0] != '.')
         {
             sscanf(buffer, "%d%c%d", &a, &bin[0], &b);
+            g->vertexs[a - 3].card++;
+            g->vertexs[b - 3].card++;
             g->aretes[i].start = a - 3;
             g->aretes[i].end = b - 3; //-3 to count after max and min
             g->aretes[i].weight = NO_WEIGHT;
@@ -338,8 +340,10 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
             }
         }
         else
-        { // bin[0] == 'd' ; create a double arete
+        { // bin[0] == '.' ; create a double arete
             sscanf(buffer, "%c%d%c%d", &bin[0], &a, &bin[0], &b);
+            g->vertexs[a - 3].card++;
+            g->vertexs[b - 3].card++;
             g->aretes[i].start = a - 3;
             g->aretes[i].end = b - 3; //-3 to count after max and min
             g->aretes[i].weight = NO_WEIGHT;
@@ -368,36 +372,35 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
     // printf("%f\n", ymax-ymin);
 }
 
-void changeCenter(double zoom, Graph*g, double old_center_x, double old_center_y, double new_center_x, double new_center_y){
+void changeCenter(double zoom, Graph *g, double old_center_x, double old_center_y, double new_center_x, double new_center_y)
+{
     double x, y;
-    for(int i = 0 ; i < g->nb_vertex;i++){
-        x = cos(g->vertexs[i].angle) * g->vertexs[i].distance*zoom;
-        y = sin(g->vertexs[i].angle) * g->vertexs[i].distance*zoom;
-        g->vertexs[i].distance = dist(new_center_x, new_center_y ,old_center_x + x, old_center_y + y)/zoom;
+    for (int i = 0; i < g->nb_vertex; i++)
+    {
+        x = cos(g->vertexs[i].angle) * g->vertexs[i].distance * zoom;
+        y = sin(g->vertexs[i].angle) * g->vertexs[i].distance * zoom;
+        g->vertexs[i].distance = dist(new_center_x, new_center_y, old_center_x + x, old_center_y + y) / zoom;
         g->vertexs[i].angle = atan2(new_center_y - (old_center_y + y), new_center_x - (old_center_x + x)) + 3.1415;
-
     }
-
 }
 
 int linkByClick(SDL_Renderer *r, const char *file_links, Graph *g, double artificial_center_x, double artificial_center_y, double zoom, double x1, double y1, double x2, double y2, int doublelink)
 {
-    //if no coordinate is in the window...
+    // if no coordinate is in the window...
     if (x1 < 0 || x2 < 0 || y1 < 0 || y2 < 0)
         return 0;
-
 
     int start_id = -1, end_id = -1;
 
     //
     for (int i = 0; i < g->nb_vertex && start_id == -1; i++)
-        if (dist(x1, y1, artificial_center_x + cos(g->vertexs[i].angle) * g->vertexs[i].distance*zoom,
-                         artificial_center_y + sin(g->vertexs[i].angle) * g->vertexs[i].distance*zoom) < VERTEX_SIZE)
+        if (dist(x1, y1, artificial_center_x + cos(g->vertexs[i].angle) * g->vertexs[i].distance * zoom,
+                 artificial_center_y + sin(g->vertexs[i].angle) * g->vertexs[i].distance * zoom) < VERTEX_SIZE)
             start_id = i;
 
     for (int i = 0; i < g->nb_vertex && start_id != -1 && end_id == -1; i++)
-        if (dist(x2, y2, artificial_center_x + cos(g->vertexs[i].angle) * g->vertexs[i].distance*zoom,
-                         artificial_center_y + sin(g->vertexs[i].angle) * g->vertexs[i].distance*zoom) < VERTEX_SIZE)
+        if (dist(x2, y2, artificial_center_x + cos(g->vertexs[i].angle) * g->vertexs[i].distance * zoom,
+                 artificial_center_y + sin(g->vertexs[i].angle) * g->vertexs[i].distance * zoom) < VERTEX_SIZE)
             end_id = i;
 
     if (start_id == -1 || end_id == -1) // no clicks in thee vertexs
@@ -426,35 +429,71 @@ int linkByClick(SDL_Renderer *r, const char *file_links, Graph *g, double artifi
     return 1; // sucess
 }
 
-void colorate_welsh_and_powell(Graph*g){
-    int*neight = malloc(g->nb_vertex * sizeof(int));
-    int*colors_avaible = malloc(NB_COLOR*sizeof(int));
+void colorate_welsh_and_powell(Graph *g)
+{
+    int *neight = malloc(g->nb_vertex * sizeof(int));
+    int *colors_avaible = malloc(NB_COLOR * sizeof(int));
+    int v;
+    // sort the vertex by their cardinalities
+    Vertex *sorted_v_id = malloc(g->nb_vertex * sizeof(Vertex));
 
-    for(int i =  0 ; i < g->nb_vertex ; i ++)//initialise vertex colors
+    for (int i = 0; i < g->nb_vertex; i++) // copy
+    {
+        sorted_v_id[i].card = g->vertexs[i].card;
+        sorted_v_id[i].id = g->vertexs[i].id;
+    }
+
+    //bubble sort from the biggest cardinal to the smallest
+
+    Vertex temp;
+    for(int i=0; i<g->nb_vertex - 1; i++)
+    {
+        for(int j=0; j<g->nb_vertex - 1-i; j++)
+        {
+            if(sorted_v_id[j].card < sorted_v_id[j+1].card)
+            {
+                temp = sorted_v_id[j+1];
+                sorted_v_id[j+1] = sorted_v_id[j];
+               sorted_v_id[j] = temp;
+            }
+
+        }
+
+    }
+
+    //printf(" most connected vertex : %d with %d connexions\n", sorted_v_id[2].id, sorted_v_id[2].card);
+
+
+
+
+
+
+
+
+    for (int i = 0; i < g->nb_vertex; i++) // initialise vertex's colors
         g->vertexs[i].color = NO_COLOR;
 
+    for (int every_vertex = 0; every_vertex < g->nb_vertex; every_vertex++)
+    { // for every vertex
+        v = sorted_v_id[every_vertex].id;
 
-
-    for(int v = 0 ; v < g->nb_vertex ; v++){//for every vertex
-
-        //initialise Color array :
-        for(int i = 0 ; i < NB_COLOR ; i++)
+        // initialise Color array :
+        for (int i = 0; i < NB_COLOR; i++)
             colors_avaible[i] = 1;
 
-        //printf("treating vertex %d\n", v);
+        // printf("treating vertex %d\n", v);
 
         neightbours(g, v, neight);
-        
+
         /*printf("neightbours :: \n[");
         for(int i = 0 ; i < NB_COLOR ; i++)
             printf("%d ", neight[i]);
         printf("]\n");*/
 
-
-        
         int n_id = 0;
-        while(neight[n_id] != -1 && n_id < g->nb_vertex){
-            if(g->vertexs[neight[n_id]].color != -1)
+        while (neight[n_id] != -1 && n_id < g->nb_vertex)
+        {
+            if (g->vertexs[neight[n_id]].color != -1)
                 colors_avaible[g->vertexs[neight[n_id]].color] = 0;
             n_id++;
         }
@@ -465,42 +504,43 @@ void colorate_welsh_and_powell(Graph*g){
             printf("%d ", colors_avaible[i]);
         printf("]\n");*/
 
-        for(int chosen_color = 0 ; chosen_color <= NB_COLOR && g->vertexs[v].color == NO_COLOR; chosen_color++){
-            //printf("%d ", chosen_color);
-            if(colors_avaible[chosen_color] == 1)
+        for (int chosen_color = 0; chosen_color <= NB_COLOR && g->vertexs[v].color == NO_COLOR; chosen_color++)
+        {
+            // printf("%d ", chosen_color);
+            if (colors_avaible[chosen_color] == 1)
                 g->vertexs[v].color = chosen_color;
-            else if(chosen_color == NB_COLOR){
+            else if (chosen_color == NB_COLOR)
+            {
                 fprintf(stderr, "no enough colors to colorate\n");
                 return;
             }
         }
-        //printf("\n");
-
-
+        // printf("\n");
     }
-
+    free(sorted_v_id);
     free(neight);
     free(colors_avaible);
-
-    
 }
 
-void neightbours(Graph*g, int vertex, int*table){
+void neightbours(Graph *g, int vertex, int *table)
+{
     int current = 0;
-    for(int i = 0 ;  i < g->nb_vertex ; i++)//initialize table
+    for (int i = 0; i < g->nb_vertex; i++) // initialize table
         table[i] = -1;
 
-    for(int v = 0 ; v < g->nb_arete ; v++){
-        //printf("current = %d    arrete %d   ..   %d ------> %d\n",current, v , g->aretes[v].start, g->aretes[v].end);
-        if(g->aretes[v].end == vertex && table[(int)fmax(0, current-1)] != g->aretes[v].start){//second contition is to avoid making a vertex neightbour of himself, 3rd condition is to avoid repeating 2* the same vertex without checking the whole array
-            table[current++]  = g->aretes[v].start;
-        }else if(g->aretes[v].start == vertex && table[(int)fmax(0, current-1)] != g->aretes[v].end){
-            table[current++]  = g->aretes[v].end;
+    for (int v = 0; v < g->nb_arete; v++)
+    {
+        // printf("current = %d    arrete %d   ..   %d ------> %d\n",current, v , g->aretes[v].start, g->aretes[v].end);
+        if (g->aretes[v].end == vertex && table[(int)fmax(0, current - 1)] != g->aretes[v].start)
+        { // second contition is to avoid making a vertex neightbour of himself, 3rd condition is to avoid repeating 2* the same vertex without checking the whole array
+            table[current++] = g->aretes[v].start;
+        }
+        else if (g->aretes[v].start == vertex && table[(int)fmax(0, current - 1)] != g->aretes[v].end)
+        {
+            table[current++] = g->aretes[v].end;
         }
     }
 }
-
-
 
 /*
 int createVertex(const char* file_coordinates, Graph*g, double cx, double cy, double _w, double _h, double x, double y){
