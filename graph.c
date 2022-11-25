@@ -309,7 +309,7 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
     fclose(fc);
 
     // read links....
-
+    i = 0;
     FILE *fl = fopen(file_links, "r");
     if (fl == NULL)
     {
@@ -426,9 +426,79 @@ int linkByClick(SDL_Renderer *r, const char *file_links, Graph *g, double artifi
     return 1; // sucess
 }
 
+void colorate_welsh_and_powell(Graph*g){
+    int*neight = malloc(g->nb_vertex * sizeof(int));
+    int*colors_avaible = malloc(NB_COLOR*sizeof(int));
+
+    for(int i =  0 ; i < g->nb_vertex ; i ++)//initialise vertex colors
+        g->vertexs[i].color = NO_COLOR;
 
 
 
+    for(int v = 0 ; v < g->nb_vertex ; v++){//for every vertex
+
+        //initialise Color array :
+        for(int i = 0 ; i < NB_COLOR ; i++)
+            colors_avaible[i] = 1;
+
+        //printf("treating vertex %d\n", v);
+
+        neightbours(g, v, neight);
+        
+        /*printf("neightbours :: \n[");
+        for(int i = 0 ; i < NB_COLOR ; i++)
+            printf("%d ", neight[i]);
+        printf("]\n");*/
+
+
+        
+        int n_id = 0;
+        while(neight[n_id] != -1 && n_id < g->nb_vertex){
+            if(g->vertexs[neight[n_id]].color != -1)
+                colors_avaible[g->vertexs[neight[n_id]].color] = 0;
+            n_id++;
+        }
+
+        /*printf("colors avaible :: \n[");
+
+        for(int i = 0 ; i < NB_COLOR ; i++)
+            printf("%d ", colors_avaible[i]);
+        printf("]\n");*/
+
+        for(int chosen_color = 0 ; chosen_color <= NB_COLOR && g->vertexs[v].color == NO_COLOR; chosen_color++){
+            //printf("%d ", chosen_color);
+            if(colors_avaible[chosen_color] == 1)
+                g->vertexs[v].color = chosen_color;
+            else if(chosen_color == NB_COLOR){
+                fprintf(stderr, "no enough colors to colorate\n");
+                return;
+            }
+        }
+        //printf("\n");
+
+
+    }
+
+    free(neight);
+    free(colors_avaible);
+
+    
+}
+
+void neightbours(Graph*g, int vertex, int*table){
+    int current = 0;
+    for(int i = 0 ;  i < g->nb_vertex ; i++)//initialize table
+        table[i] = -1;
+
+    for(int v = 0 ; v < g->nb_arete ; v++){
+        //printf("current = %d    arrete %d   ..   %d ------> %d\n",current, v , g->aretes[v].start, g->aretes[v].end);
+        if(g->aretes[v].end == vertex && table[(int)fmax(0, current-1)] != g->aretes[v].start){//second contition is to avoid making a vertex neightbour of himself, 3rd condition is to avoid repeating 2* the same vertex without checking the whole array
+            table[current++]  = g->aretes[v].start;
+        }else if(g->aretes[v].start == vertex && table[(int)fmax(0, current-1)] != g->aretes[v].end){
+            table[current++]  = g->aretes[v].end;
+        }
+    }
+}
 
 
 

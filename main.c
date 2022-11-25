@@ -30,6 +30,24 @@ int main()
     Graph g;
     createGraph(&g, 1000, 10000);
     createCoordinatesSystem("./coordinates.txt", "./links.txt", &g, center_x, center_y);
+    colorate_welsh_and_powell(&g);
+
+    //printGraph(&g);
+
+/*
+    int*temporary = malloc(g.nb_vertex*sizeof(int));
+
+    neightbours(&g, 0, temporary);
+
+    printf("[");
+    for(int i = 0 ; i < g.nb_vertex ; i++)
+        printf("%d ", temporary[i]);
+
+    printf("]\n");
+    free(temporary);
+*/
+
+
     while (program_launched)
     {
 

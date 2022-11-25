@@ -1,7 +1,7 @@
 #define NO_COLOR -1
 #define NO_WEIGHT -1
 #define NB_COLOR 15
-#define VERTEX_SIZE 2
+#define VERTEX_SIZE 15
 
 #include "SDL_Basics.h"
 
@@ -45,3 +45,5 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
 int linkByClick(SDL_Renderer *r, const char *file_links, Graph *g, double artificial_center_x, double artificial_center_y, double zoom, double x1, double y1, double x2, double y2, int doublelink);
 int createVertex(const char* file_coordinates, Graph*g, double cx, double cy, double _w, double _h, double x, double y);
 void changeCenter(double zoom, Graph*g, double old_center_x, double old_center_y, double new_center_x, double new_center_y);
+void colorate_welsh_and_powell(Graph*g);
+void neightbours(Graph*g, int vertex, int*table);
