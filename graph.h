@@ -47,4 +47,6 @@ int linkByClick(SDL_Renderer *r, const char *file_links, Graph *g, double artifi
 int createVertex(const char* file_coordinates, Graph*g, double cx, double cy, double _w, double _h, double x, double y);
 void changeCenter(double zoom, Graph*g, double old_center_x, double old_center_y, double new_center_x, double new_center_y);
 void colorate_welsh_and_powell(Graph*g);
-void neightbours(Graph*g, int vertex, int*table);
+void neightbours(Graph *g, int vertex, int *vertexTable, int*areteTable);
+int areteBetween(Graph*g, int start_id, int end_id);
+void shortestPath(Graph*g, int vertex_start_id, int vertex_end_id);

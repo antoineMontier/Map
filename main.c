@@ -30,7 +30,9 @@ int main()
     Graph g;
     createGraph(&g, 1000, 10000);
     createCoordinatesSystem("./coordinates.txt", "./links.txt", &g, center_x, center_y);
-    colorate_welsh_and_powell(&g);
+    //colorate_welsh_and_powell(&g);
+
+    //shortestPath(&g, 0, 650);
 
     //printf("%d\n", g.vertexs[633].card);
 

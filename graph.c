@@ -438,6 +438,7 @@ int linkByClick(SDL_Renderer *r, const char *file_links, Graph *g, double artifi
 void colorate_welsh_and_powell(Graph *g)
 {
     int *neight = malloc(g->nb_vertex * sizeof(int));
+    int *ar = malloc(g->nb_arete*sizeof(int));
     int *colors_avaible = malloc(NB_COLOR * sizeof(int));
     int v;
     // sort the vertex by their cardinalities
@@ -488,7 +489,7 @@ void colorate_welsh_and_powell(Graph *g)
             colors_avaible[i] = 1;
 
 
-        neightbours(g, v, neight);
+        neightbours(g, v, neight, ar);
 
 
         int n_id = 0;
@@ -510,31 +511,104 @@ void colorate_welsh_and_powell(Graph *g)
             }
         }
     }
+    free(ar);
     free(sorted_v_id);
     free(neight);
     free(colors_avaible);
 }
 
-void neightbours(Graph *g, int vertex, int *table)
+void neightbours(Graph *g, int vertex, int *vertexTable, int*areteTable)
 {
     int current = 0;
     for (int i = 0; i < g->nb_vertex; i++) // initialize table
-        table[i] = -1;
+        vertexTable[i] = -1;
+    for (int i = 0; i < g->nb_arete; i++) // initialize table
+        areteTable[i] = -1;
 
     for (int v = 0; v < g->nb_arete; v++)
     {
         // printf("current = %d    arrete %d   ..   %d ------> %d\n",current, v , g->aretes[v].start, g->aretes[v].end);
-        if (g->aretes[v].end == vertex && table[(int)fmax(0, current - 1)] != g->aretes[v].start)
+        if (g->aretes[v].end == vertex && vertexTable[(int)fmax(0, current - 1)] != g->aretes[v].start)
         { // second contition is to avoid making a vertex neightbour of himself, 3rd condition is to avoid repeating 2* the same vertex without checking the whole array
-            table[current++] = g->aretes[v].start;
+            areteTable[current] = v;
+            vertexTable[current++] = g->aretes[v].start;
         }
-        else if (g->aretes[v].start == vertex && table[(int)fmax(0, current - 1)] != g->aretes[v].end)
+        else if (g->aretes[v].start == vertex && vertexTable[(int)fmax(0, current - 1)] != g->aretes[v].end)
         {
-            table[current++] = g->aretes[v].end;
+            areteTable[current] = v;
+            vertexTable[current++] = g->aretes[v].end;
         }
     }
 }
 
+int areteBetween(Graph*g, int start_id, int end_id){
+    for(int i = 0 ; i < g->nb_arete ; i++){
+        if(g->aretes[i].start == start_id && g->aretes[i].end == end_id)
+            return i;
+    }
+    return -1;//false
+}
+
+
+void shortestPath(Graph*g, int vertex_start_id, int vertex_end_id){
+    int*temporary_neight = malloc(g->nb_vertex*sizeof(int));
+    int*temporary_arete = malloc(g->nb_arete*sizeof(int));
+    int current_id = vertex_start_id;
+    int pretend_to_future_neightbour;
+    int future_neightbour;
+    double best_distance;
+    double pretendant_dist;
+    int*visited = malloc(g->nb_vertex*sizeof(int));
+    for(int i = 0 ; i < g->nb_vertex ; i++)
+        visited[i] = 0;
+
+    //weightAsDistance(&g);
+
+    while(current_id != vertex_end_id){
+        visited[current_id] = 1;
+        printf("%d    [", current_id);
+        g->vertexs[current_id].color = 2;
+        best_distance = HEIGHT+WIDTH;
+        future_neightbour = -1;
+        pretend_to_future_neightbour = 0;
+        neightbours(g, current_id, temporary_neight, temporary_arete);
+        if(temporary_neight[0] == -1){//exception
+            fprintf(stderr, "no neightbours for %dth vertex\n", current_id);
+            free(temporary_arete);
+            free(temporary_neight);
+            return;
+        }
+        
+        for(int i = 0 ; temporary_neight[i] != -1 ; i++)
+            printf("%d ", i);
+        printf("]     ");
+        
+        while(temporary_neight[pretend_to_future_neightbour] != -1){
+            if(current_id != pretend_to_future_neightbour && visited[pretend_to_future_neightbour] == 0 && areteBetween(g, current_id, temporary_neight[pretend_to_future_neightbour]) >= 0){//an arete exists between the two vertexs and it's well oriented
+
+
+                pretendant_dist = dist(cos(g->vertexs[vertex_end_id].angle) * g->vertexs[vertex_end_id].distance,
+                            sin(g->vertexs[vertex_end_id].angle) * g->vertexs[vertex_end_id].distance,
+                            cos(g->vertexs[pretend_to_future_neightbour].angle) * g->vertexs[pretend_to_future_neightbour].distance,
+                            sin(g->vertexs[pretend_to_future_neightbour].angle) * g->vertexs[pretend_to_future_neightbour].distance);
+
+
+                if(pretendant_dist < best_distance){//distance is better than the previous
+                    future_neightbour = pretend_to_future_neightbour;
+                    best_distance = pretendant_dist;
+                }
+            }
+            pretend_to_future_neightbour++;
+        }
+        g->aretes[areteBetween(g, current_id, temporary_neight[future_neightbour])].color = 2;//red
+        printf("  >>> %d\n", current_id);
+        current_id = future_neightbour;
+    }
+    free(visited);
+    free(temporary_arete);
+    free(temporary_neight);
+
+}
 /*
 int createVertex(const char* file_coordinates, Graph*g, double cx, double cy, double _w, double _h, double x, double y){
     //first let's know the min and max value :
