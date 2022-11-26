@@ -554,7 +554,7 @@ void shortestPath(Graph*g, int vertex_start_id, int vertex_end_id){
     int*temporary_neight = malloc(g->nb_vertex*sizeof(int));
     int*temporary_arete = malloc(g->nb_arete*sizeof(int));
     int current_id = vertex_start_id;
-    int pretend_to_future_neightbour;
+    int pretend_to_future_neightbour_index;
     int future_neightbour;
     double best_distance;
     double pretendant_dist;
@@ -566,11 +566,11 @@ void shortestPath(Graph*g, int vertex_start_id, int vertex_end_id){
 
     while(current_id != vertex_end_id){
         visited[current_id] = 1;
-        printf("%d    [", current_id);
+        printf("start : %d    [", current_id);
         g->vertexs[current_id].color = 2;
         best_distance = HEIGHT+WIDTH;
         future_neightbour = -1;
-        pretend_to_future_neightbour = 0;
+        pretend_to_future_neightbour_index = 0;
         neightbours(g, current_id, temporary_neight, temporary_arete);
         if(temporary_neight[0] == -1){//exception
             fprintf(stderr, "no neightbours for %dth vertex\n", current_id);
@@ -579,30 +579,33 @@ void shortestPath(Graph*g, int vertex_start_id, int vertex_end_id){
             return;
         }
         
-        for(int i = 0 ; temporary_neight[i] != -1 ; i++)
-            printf("%d ", i);
-        printf("]     ");
         
-        while(temporary_neight[pretend_to_future_neightbour] != -1){
-            if(current_id != pretend_to_future_neightbour && visited[pretend_to_future_neightbour] == 0 && areteBetween(g, current_id, temporary_neight[pretend_to_future_neightbour]) >= 0){//an arete exists between the two vertexs and it's well oriented
-
+        while(temporary_neight[pretend_to_future_neightbour_index] != -1){
+                printf("(%d : ", temporary_neight[pretend_to_future_neightbour_index]);
 
                 pretendant_dist = dist(cos(g->vertexs[vertex_end_id].angle) * g->vertexs[vertex_end_id].distance,
                             sin(g->vertexs[vertex_end_id].angle) * g->vertexs[vertex_end_id].distance,
-                            cos(g->vertexs[pretend_to_future_neightbour].angle) * g->vertexs[pretend_to_future_neightbour].distance,
-                            sin(g->vertexs[pretend_to_future_neightbour].angle) * g->vertexs[pretend_to_future_neightbour].distance);
+                            cos(g->vertexs[pretend_to_future_neightbour_index].angle) * g->vertexs[pretend_to_future_neightbour_index].distance,
+                            sin(g->vertexs[pretend_to_future_neightbour_index].angle) * g->vertexs[pretend_to_future_neightbour_index].distance);
+                
+                printf("%f) ", pretendant_dist);
+
+            if(current_id != temporary_neight[pretend_to_future_neightbour_index] && visited[temporary_neight[pretend_to_future_neightbour_index]] == 0 && areteBetween(g, current_id, temporary_neight[pretend_to_future_neightbour_index]) >= 0){//an arete exists between the two vertexs and it's well oriented
+
+
 
 
                 if(pretendant_dist < best_distance){//distance is better than the previous
-                    future_neightbour = pretend_to_future_neightbour;
+                    future_neightbour = pretend_to_future_neightbour_index;
                     best_distance = pretendant_dist;
                 }
             }
-            pretend_to_future_neightbour++;
+            pretend_to_future_neightbour_index++;
         }
         g->aretes[areteBetween(g, current_id, temporary_neight[future_neightbour])].color = 2;//red
-        printf("  >>> %d\n", current_id);
-        current_id = future_neightbour;
+        printf("]    chosen >>> %d\n", future_neightbour);
+        visited[temporary_neight[future_neightbour]] = 1;
+        current_id = temporary_neight[future_neightbour];
     }
     free(visited);
     free(temporary_arete);

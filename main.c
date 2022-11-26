@@ -32,7 +32,7 @@ int main()
     createCoordinatesSystem("./coordinates.txt", "./links.txt", &g, center_x, center_y);
     //colorate_welsh_and_powell(&g);
 
-    //shortestPath(&g, 0, 650);
+    //shortestPath(&g, 9, 17);
 
     //printf("%d\n", g.vertexs[633].card);
 
