@@ -1,7 +1,7 @@
 #define NO_COLOR -1
 #define NO_WEIGHT -1
 #define NB_COLOR 15
-#define VERTEX_SIZE 4
+#define VERTEX_SIZE 10
 
 #include "SDL_Basics.h"
 
@@ -19,6 +19,7 @@ typedef struct
     int start;
     int end;
     double weight;
+    int color;
 } Arete;
 
 typedef struct
@@ -33,7 +34,7 @@ typedef struct
 void createGraph(Graph *, int v, int a);
 void destructGraph(Graph *);
 void addVertex(Graph *g, int id, double distance, double angle, int color);
-void addArete(Graph *g, int start_id, int end_id, double weight);
+void addArete(Graph *g, int start_id, int end_id, double weight, int color);
 void printGraph(Graph *g);
 void printVertex(Vertex *v);
 void printArete(Arete *a);

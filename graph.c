@@ -41,7 +41,7 @@ void addVertex(Graph *g, int id, double distance, double angle, int color)
     (g->nb_vertex)++;
 }
 
-void addArete(Graph *g, int start_id, int end_id, double weight)
+void addArete(Graph *g, int start_id, int end_id, double weight, int color)
 {
     if (g->a <= g->nb_arete)
     {
@@ -129,7 +129,10 @@ void displayGraph(SDL_Renderer *r, TTF_Font *f, Graph *g, char *tmp, SDL_Color *
         sy = artificial_center_y + (sin(g->vertexs[g->aretes[i].start].angle) * g->vertexs[g->aretes[i].start].distance * zoom_power);
         ex = artificial_center_x + (cos(g->vertexs[g->aretes[i].end].angle) * g->vertexs[g->aretes[i].end].distance * zoom_power);
         ey = artificial_center_y + (sin(g->vertexs[g->aretes[i].end].angle) * g->vertexs[g->aretes[i].end].distance * zoom_power);
-        color(r, 0, 0, 0, 0);
+        if(g->aretes[i].color == NO_COLOR)
+            color(r, 0, 0, 0, 1);//black if no color
+        else
+            color(r, c[g->aretes[i].color].r, c[g->aretes[i].color].g, c[g->aretes[i].color].b, c[g->aretes[i].color].a);
 
         double theta = atan2(ey - sy, ex - sx);
         double theta2 = atan2(sy - ey, sx - ex);
@@ -330,6 +333,7 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
             g->aretes[i].start = a - 3;
             g->aretes[i].end = b - 3; //-3 to count after max and min
             g->aretes[i].weight = NO_WEIGHT;
+            g->aretes[i].color = NO_COLOR;
             g->nb_arete = i + 1;
             i++;
             if (i >= g->a)
@@ -347,6 +351,7 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
             g->aretes[i].start = a - 3;
             g->aretes[i].end = b - 3; //-3 to count after max and min
             g->aretes[i].weight = NO_WEIGHT;
+            g->aretes[i].color = NO_COLOR;
             g->nb_arete = i + 1;
             i++;
             if (i >= g->a)
@@ -358,6 +363,7 @@ void createCoordinatesSystem(const char *file_coord, const char *file_links, Gra
             g->aretes[i].start = b - 3;
             g->aretes[i].end = a - 3; //-3 to count after max and min
             g->aretes[i].weight = NO_WEIGHT;
+            g->aretes[i].color = NO_COLOR;
             g->nb_arete = i + 1;
             i++;
             if (i >= g->a)
@@ -416,11 +422,11 @@ int linkByClick(SDL_Renderer *r, const char *file_links, Graph *g, double artifi
     }
 
     printf("adding arete between %d and %d \n", start_id, end_id);
-    addArete(g, start_id, end_id, NO_WEIGHT);
+    addArete(g, start_id, end_id, NO_WEIGHT, NO_COLOR);
 
     if (doublelink)
     {
-        addArete(g, end_id, start_id, NO_WEIGHT);
+        addArete(g, end_id, start_id, NO_WEIGHT, NO_COLOR);
 
         fprintf(f, "%s", "."); // double way arrow signature
     }
