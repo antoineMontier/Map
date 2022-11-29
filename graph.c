@@ -549,7 +549,6 @@ int areteBetween(Graph*g, int start_id, int end_id){
     return -1;//false
 }
 
-
 void shortestPath(Graph*g, int vertex_start_id, int vertex_end_id){
     int*temporary_neight = malloc(g->nb_vertex*sizeof(int));
     int*temporary_arete = malloc(g->nb_arete*sizeof(int));
@@ -612,6 +611,40 @@ void shortestPath(Graph*g, int vertex_start_id, int vertex_end_id){
     free(temporary_neight);
 
 }
+
+void modify_osm_file(const char *filename){
+    FILE *reader = fopen(filename, "r");
+    //printf("reader openend\n");
+    FILE *writer = fopen("new_coord.txt", "w");
+    //printf("writer openend\n");
+    char bin[1024], tmp[1024];
+    double trash, lat, lon, minlat, maxlat, minlon, maxlon;
+    char buffer[1024];
+    int maxprinted = 0;
+    while(!feof(reader)){
+        fgets(buffer, sizeof(buffer), reader);
+        sscanf(buffer, "%5s", bin);
+    if(!maxprinted && strcmp(bin, "<boun")==0){
+        //read max and min values
+        sscanf(buffer, "  %s %8s%lf%c %8s%lf%c %8s%lf%c %8s%lf", bin, bin, &minlat, bin, bin, &minlon, bin, bin, &maxlat, bin, bin, &maxlon);
+        printf("%lf    %lf   %lf       %lf\n", minlat, minlon, maxlat, maxlon);
+        fprintf(writer, "MIN %lf , %lf\nMAX %lf , %lf\n", minlat, minlon, maxlat, maxlon);
+    }
+    if (strcmp(bin, "<node") == 0){
+        sscanf(buffer, "%c%c%c%c%c%c%c%c%c%c%c%c%lf%c%c%c%c%c%c%c%lf%c%c%c%c%c%c%c%lf", bin, bin,bin,bin,bin,bin,bin,bin,bin,bin,bin,bin,&trash,bin, bin, bin, bin, bin, bin, bin,&lat,bin, bin, bin, bin, bin, bin, bin, &lon);
+        fprintf(writer, "%lf , %lf\n", lat, lon);
+    }
+        //fprintf(writer, "%s", buffer);
+
+    }
+        
+
+
+    fclose(reader);
+    fclose(writer);
+    //remove(filename);
+}
+
 /*
 int createVertex(const char* file_coordinates, Graph*g, double cx, double cy, double _w, double _h, double x, double y){
     //first let's know the min and max value :

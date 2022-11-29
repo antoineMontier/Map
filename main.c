@@ -27,9 +27,10 @@ int main()
     setFont(&controls, "Roboto-Light.ttf", 20);
 
     char *tmp = malloc(10);
+    modify_osm_file("./map.txt");
     Graph g;
-    createGraph(&g, 1000, 10000);
-    createCoordinatesSystem("./coordinates.txt", "./links.txt", &g, center_x, center_y);
+    createGraph(&g, 20000, 10000);
+    createCoordinatesSystem("./new_coord.txt", "./links.txt", &g, center_x, center_y);
     //colorate_welsh_and_powell(&g);
 
     //shortestPath(&g, 9, 17);

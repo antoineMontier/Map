@@ -350,8 +350,15 @@ void toChar(char*c, int n){
         c[1] = '0' + (char)(n/100 % 10);
         c[0] = '0' + (char)(n/1000);
         c[4] = '\0';
+    }else if(n < 100000){
+        c[5] = '\0';
+        c[4] = '0' + (char)(n%10);
+        c[3] = '0' + (char)(n/10 % 10);
+        c[2] = '0' + (char)(n/100 % 10);
+        c[1] = '0' + (char)(n/1000 % 10);
+        c[0] = '0' + (char)(n/10000);
     }else{
-        fprintf(stderr, "toChar() function cannot deal with number > 9.999\n");
+        fprintf(stderr, "toChar() function cannot deal with number > 99.999\n");
     }
 
 }

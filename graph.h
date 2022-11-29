@@ -1,7 +1,7 @@
 #define NO_COLOR -1
 #define NO_WEIGHT -1
 #define NB_COLOR 15
-#define VERTEX_SIZE 10
+#define VERTEX_SIZE 2
 
 #include "SDL_Basics.h"
 
@@ -50,3 +50,4 @@ void colorate_welsh_and_powell(Graph*g);
 void neightbours(Graph *g, int vertex, int *vertexTable, int*areteTable);
 int areteBetween(Graph*g, int start_id, int end_id);
 void shortestPath(Graph*g, int vertex_start_id, int vertex_end_id);
+void modify_osm_file(const char *filename);
