@@ -612,37 +612,59 @@ void shortestPath(Graph*g, int vertex_start_id, int vertex_end_id){
 
 }
 
-void modify_osm_file(const char *filename){
+void modify_osm_file(const char *filename)
+{
     FILE *reader = fopen(filename, "r");
-    //printf("reader openend\n");
+    // printf("reader openend\n");
     FILE *writer = fopen("new_coord.txt", "w");
-    //printf("writer openend\n");
-    char bin[1024], tmp[1024];
+    // printf("writer openend\n");
+    char **tmp = malloc(10 * sizeof(int));
+    for (int i = 0; i < 10; i++)
+        tmp[i] = malloc(1024 * sizeof(char));
+
+    char bin[1024], buffer[1024];
     double trash, lat, lon, minlat, maxlat, minlon, maxlon;
-    char buffer[1024];
-    int maxprinted = 0;
-    while(!feof(reader)){
+    int maxprinted = 0, latreading, longreading, iteration = 0;
+
+    while (!feof(reader))
+    {
         fgets(buffer, sizeof(buffer), reader);
+        printf("ok X%d\n", iteration++);
+
         sscanf(buffer, "%5s", bin);
-    if(!maxprinted && strcmp(bin, "<boun")==0){
-        //read max and min values
-        sscanf(buffer, "  %s %8s%lf%c %8s%lf%c %8s%lf%c %8s%lf", bin, bin, &minlat, bin, bin, &minlon, bin, bin, &maxlat, bin, bin, &maxlon);
-        printf("%lf    %lf   %lf       %lf\n", minlat, minlon, maxlat, maxlon);
-        fprintf(writer, "MIN %lf , %lf\nMAX %lf , %lf\n", minlat, minlon, maxlat, maxlon);
+        if (!maxprinted && strcmp(bin, "<boun") == 0)
+        {
+            // read max and min values
+            sscanf(buffer, "  %s %8s%lf%c %8s%lf%c %8s%lf%c %8s%lf", bin, bin, &minlat, bin, bin, &minlon, bin, bin, &maxlat, bin, bin, &maxlon);
+            printf("%lf    %lf   %lf       %lf\n", minlat, minlon, maxlat, maxlon);
+            fprintf(writer, "MIN %lf , %lf\nMAX %lf , %lf\n", minlat, minlon, maxlat, maxlon);
+            maxprinted = 1;
+        }
+        if (strcmp(bin, "<node") == 0)
+        {
+            sscanf(buffer, "%s %s %s %s %s %s %s %s %s %s", tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5], tmp[6], tmp[7], tmp[8], tmp[9], tmp[10]);
+            for (int i = 0; i < 10; i++)
+            {
+                sscanf(tmp[i], "%3s", bin);
+                if (strcmp(bin, "lat") == 0)
+                {
+                    sscanf(tmp[i], "%5s%lf", bin, &lat);
+                }
+                else if (strcmp(bin, "lon") == 0)
+                {
+                    sscanf(tmp[i], "%5s%lf", bin, &lon);
+                }
+            }
+            fprintf(writer, "%lf , %lf\n", lat, lon);
+        }
     }
-    if (strcmp(bin, "<node") == 0){
-        sscanf(buffer, "%c%c%c%c%c%c%c%c%c%c%c%c%lf%c%c%c%c%c%c%c%lf%c%c%c%c%c%c%c%lf", bin, bin,bin,bin,bin,bin,bin,bin,bin,bin,bin,bin,&trash,bin, bin, bin, bin, bin, bin, bin,&lat,bin, bin, bin, bin, bin, bin, bin, &lon);
-        fprintf(writer, "%lf , %lf\n", lat, lon);
-    }
-        //fprintf(writer, "%s", buffer);
 
-    }
-        
-
-
+    for (int i = 0; i < 10; i++)
+        free(tmp[i]);
+    free(tmp);
     fclose(reader);
     fclose(writer);
-    //remove(filename);
+    printf("ok 11\n");
 }
 
 /*
